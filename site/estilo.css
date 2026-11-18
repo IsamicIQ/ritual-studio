@@ -354,3 +354,10 @@ dialog.reserva::backdrop { background: rgb(38 56 46 / .35); backdrop-filter: blu
 }
 .painel--vidro h1, .painel--vidro .destaque, .painel--vidro .apoio { text-shadow: 0 1px 14px rgb(244 230 223 / .85); }
 .painel--vidro .apoio { color: var(--texto); }
+
+/* Booking form extras */
+.campo label small { font-size: inherit; opacity: .75; }
+.campo textarea { resize: vertical; min-height: 64px; font: inherit; }
+.opcao.campo--inteiro { justify-self: start; }
+.campo-isca { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.reserva-espera { margin-top: 0; }

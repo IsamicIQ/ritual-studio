@@ -5,7 +5,6 @@
   if (!R) return;
 
   const esc = (t) => String(t ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-  const dataLonga = (d) => d.toLocaleDateString("en-KE", { weekday: "long", day: "numeric", month: "long" });
 
   /* ── Packages ── */
   const listaPacotes = document.querySelector(".pacotes");
@@ -21,13 +20,13 @@
   const dias = document.querySelector(".dias");
   const aulas = document.querySelector(".aulas");
   if (!dias || !aulas) return;
-  const semana = R.proximosDias(7);
+  let semana = [];
   let escolhido = 0;
 
   function desenharDias() {
     dias.innerHTML = semana.map((d, i) => `
       <button type="button" role="tab" class="dia" aria-selected="${i === escolhido}" data-i="${i}">
-        <span>${i === 0 ? "Today" : R.DIAS[R.diaSemana(d)]}</span><b>${d.getDate()}</b>
+        <span>${i === 0 ? "Today" : R.DIAS[R.diaSemana(R.deIso(d))]}</span><b>${R.deIso(d).getDate()}</b>
       </button>`).join("");
   }
 
@@ -35,19 +34,23 @@
     const d = semana[escolhido];
     const lista = R.aulasDoDia(d);
     if (!lista.length) {
-      aulas.innerHTML = `<li class="vazio">No classes on ${esc(R.DIAS_LONGOS[R.diaSemana(d)])}. Pick another day.</li>`;
+      aulas.innerHTML = `<li class="vazio">No classes on ${esc(R.DIAS_LONGOS[R.diaSemana(R.deIso(d))])}. Pick another day.</li>`;
       return;
     }
-    aulas.innerHTML = lista.map((a) => {
-      const vagas = R.vagas(a, d);
-      const passou = R.jaPassou(a, d);
-      const estado = passou ? "Started" : vagas === 0 ? "Full" : `${vagas} ${vagas === 1 ? "spot" : "spots"} left`;
-      const pode = !passou && vagas > 0;
+    aulas.innerHTML = lista.map((o) => {
+      const a = o.aula;
+      const cheia = o.vagas === 0;
+      const estado = o.cancelled ? `Cancelled${o.reason ? `: ${o.reason}` : ""}`
+        : o.passou ? "Started"
+        : cheia ? "Full · join the waitlist"
+        : `${o.vagas} ${o.vagas === 1 ? "spot" : "spots"} left`;
+      const pode = !o.cancelled && !o.passou;
+      const com = o.instructor ? ` · with ${o.instructor}` : "";
       return `
         <li class="aula${pode ? "" : " aula--off"}">
           <time>${esc(a.time)}</time>
-          <div><strong>${esc(a.name)}</strong><span>${esc(a.duration)} min · ${estado}</span></div>
-          <button type="button" class="botao botao--pequeno" data-aula="${esc(a.id)}" ${pode ? "" : "disabled"}>${vagas === 0 && !passou ? "Full" : "Book"}</button>
+          <div><strong>${esc(a.name)}</strong><span>${esc(a.duration)} min${esc(com)} · ${esc(estado)}</span></div>
+          <button type="button" class="botao botao--pequeno${cheia && pode ? " botao--linha" : ""}" data-aula="${esc(a.id)}" ${pode ? "" : "disabled"}>${o.cancelled ? "Cancelled" : cheia && pode ? "Waitlist" : "Book"}</button>
         </li>`;
     }).join("");
   }
@@ -60,9 +63,20 @@
     desenharAulas();
   });
 
-  desenharDias();
-  desenharAulas();
-  R.aoMudar(desenharAulas);
+  async function atualizar() {
+    try {
+      await R.carregarHorario();
+      semana = R.diasPublicos();
+      if (escolhido >= semana.length) escolhido = 0;
+      desenharDias();
+      desenharAulas();
+    } catch (e) {
+      if (!semana.length) aulas.innerHTML = `<li class="vazio">The timetable couldn't load. Please refresh the page in a moment.</li>`;
+    }
+  }
+  aulas.innerHTML = `<li class="vazio">Loading the timetable…</li>`;
+  atualizar();
+  addEventListener("focus", atualizar); // spots left stay current when people come back to the tab
 
   /* ── Booking dialog ── */
   const dlg = document.querySelector("dialog.reserva");
@@ -70,6 +84,7 @@
   const status = form.querySelector(".form-status");
   const passoForm = form.querySelector('[data-passo="form"]');
   const passoOk = form.querySelector('[data-passo="ok"]');
+  const enviar = form.querySelector('button[type="submit"]');
   let atual = null;
 
   form.querySelector(".pagar-opcoes").innerHTML = (S.pagamentos || []).map((p, i) => `
@@ -78,12 +93,13 @@
   aulas.addEventListener("click", (e) => {
     const b = e.target.closest("[data-aula]");
     if (!b || b.disabled) return;
-    const d = semana[escolhido];
-    const aula = R.dados().classes.find((c) => c.id === b.dataset.aula);
-    if (!aula) return;
-    atual = { aula, data: d };
-    form.querySelector(".reserva-aula").textContent = aula.name;
-    form.querySelector(".reserva-quando").textContent = `${dataLonga(d)} · ${aula.time} · ${aula.duration} min`;
+    const o = R.aulasDoDia(semana[escolhido]).find((x) => x.aula.id === b.dataset.aula);
+    if (!o) return;
+    atual = o;
+    form.querySelector(".reserva-aula").textContent = o.aula.name;
+    form.querySelector(".reserva-quando").textContent = `${R.dataLonga(o.date)} · ${o.aula.time} · ${o.aula.duration} min`;
+    form.querySelector(".reserva-espera").hidden = o.vagas > 0;
+    enviar.textContent = o.vagas > 0 ? "Confirm booking" : "Join the waitlist";
     status.textContent = "";
     status.className = "form-status campo--inteiro";
     passoForm.hidden = false;
@@ -97,9 +113,9 @@
   form.querySelector(".fechar-ok").addEventListener("click", fechar);
   dlg.addEventListener("click", (e) => { if (e.target === dlg) fechar(); });
 
-  form.addEventListener("submit", (ev) => {
+  form.addEventListener("submit", async (ev) => {
     ev.preventDefault();
-    if (!atual) return;
+    if (!atual || enviar.disabled) return;
     let valido = true;
     form.querySelectorAll("[required]").forEach((c) => {
       const v = c.value.trim();
@@ -115,26 +131,43 @@
       return;
     }
     const f = form.elements;
+    enviar.disabled = true;
+    status.textContent = "Booking…";
+    status.className = "form-status campo--inteiro";
     try {
-      const b = R.reservar({
+      const { booking: b } = await R.reservar({
         classId: atual.aula.id,
-        date: R.iso(atual.data),
+        date: atual.date,
         name: f.name.value.trim(),
         phone: f.phone.value.trim(),
         email: f.email.value.trim(),
         payment: f.payment.value,
+        health: f.health.value.trim(),
+        firstTime: f.firstTime.checked,
+        website: f.website.value,
       });
       const metodo = (S.pagamentos || []).find((p) => p.id === b.payment);
-      form.querySelector(".reserva-resumo").textContent =
-        `${b.name.split(" ")[0]}, you're booked into ${b.className} on ${dataLonga(atual.data)} at ${b.time}. Payment: ${metodo ? metodo.rotulo : b.payment}.`;
+      const primeiro = b.name.split(" ")[0];
+      const espera = b.status === "waitlist";
+      passoOk.querySelector("h3").textContent = espera ? "You're on the waitlist." : "See you on the reformer.";
+      form.querySelector(".reserva-resumo").textContent = espera
+        ? `${primeiro}, ${b.className} on ${R.dataLonga(b.date)} at ${b.time} is full, so you're on the waitlist. If a spot opens up, it's yours and the studio will let you know.`
+        : `${primeiro}, you're booked into ${b.className} on ${R.dataLonga(b.date)} at ${b.time}. Payment: ${metodo ? metodo.rotulo : b.payment}.`;
+      form.querySelector(".reserva-nota").textContent = b.payment === "studio"
+        ? "You'll pay when you arrive for class."
+        : "Online payment isn't switched on yet, so nothing was charged. The studio will be in touch about paying.";
       form.reset();
       form.querySelector('input[name="payment"]').checked = true;
       passoForm.hidden = true;
       passoOk.hidden = false;
       form.querySelector(".fechar-ok").focus();
+      atualizar();
     } catch (e) {
       status.textContent = e.message;
       status.className = "form-status campo--inteiro falha";
+      if (e.status === 409) atualizar();
+    } finally {
+      enviar.disabled = false;
     }
   });
 })();

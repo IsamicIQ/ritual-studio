@@ -1,0 +1,15 @@
+{
+  "name": "ritual-studio",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "24.x"
+  },
+  "scripts": {
+    "db:setup": "node --env-file=.env.local scripts/db-setup.mjs"
+  },
+  "dependencies": {
+    "@clerk/backend": "^3.30.0",
+    "@neondatabase/serverless": "^1.2.1"
+  }
+}

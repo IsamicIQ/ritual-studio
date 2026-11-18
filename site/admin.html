@@ -18,59 +18,76 @@
   <a href="index.html" class="marca" aria-label="Back to the website"><span class="marca-texto">Ritual Studio</span></a>
   <nav class="menu" aria-label="Admin">
     <span class="admin-tag">Admin</span>
-    <a href="index.html" class="menu-cta">View site</a>
+    <span class="admin-eu" data-eu hidden></span>
+    <div data-botao-usuario></div>
   </nav>
 </header>
 
 <main class="admin-main">
 
-  <!-- Preview lock -->
+  <!-- Sign in -->
   <section class="painel admin-trava" data-trava>
     <span class="rotulo">Staff</span>
     <h1>Admin</h1>
-    <p>Enter the staff code to manage the timetable and bookings.</p>
-    <form class="admin-trava-form">
-      <div class="campo">
-        <label for="codigo">Staff code</label>
-        <input id="codigo" type="password" autocomplete="current-password" required>
-      </div>
-      <button class="botao" type="submit">Enter</button>
-      <p class="form-status" role="status" aria-live="polite"></p>
-    </form>
-    <p class="nota">Preview: this code only hides the page. A proper staff login comes with the booking backend.</p>
+    <p data-trava-texto>Loading sign-in…</p>
+    <div data-entrar></div>
+    <div data-negado hidden>
+      <p class="form-status falha" data-negado-texto></p>
+      <button type="button" class="botao botao--linha botao--pequeno" data-sair>Sign out</button>
+    </div>
   </section>
 
   <div class="admin-app" data-app hidden>
 
-    <div class="admin-aviso painel">
-      <strong>Preview mode.</strong> Classes and bookings are stored in this browser only, so bookings made on another phone or laptop won't show here yet. Phase 2 connects a real database and payments.
-    </div>
-
     <div class="admin-resumo">
-      <div class="painel stat"><span>Bookings today</span><b data-stat="hoje">0</b></div>
+      <div class="painel stat"><span>Booked today</span><b data-stat="hoje">0</b></div>
       <div class="painel stat"><span>Upcoming bookings</span><b data-stat="futuras">0</b></div>
       <div class="painel stat"><span>Awaiting payment</span><b data-stat="pagar">0</b></div>
-      <div class="painel stat"><span>Classes per week</span><b data-stat="aulas">0</b></div>
+      <div class="painel stat"><span>On waitlists</span><b data-stat="espera">0</b></div>
     </div>
 
-    <div class="admin-abas" role="tablist">
-      <button role="tab" class="aba" aria-selected="true" data-aba="bookings">Bookings</button>
+    <div class="admin-abas" role="tablist" aria-label="Admin sections">
+      <button role="tab" class="aba" aria-selected="true" data-aba="today">Today</button>
+      <button role="tab" class="aba" aria-selected="false" data-aba="bookings">Bookings</button>
       <button role="tab" class="aba" aria-selected="false" data-aba="timetable">Timetable</button>
+      <button role="tab" class="aba" aria-selected="false" data-aba="clients">Clients</button>
+      <button role="tab" class="aba" aria-selected="false" data-aba="payments" data-papel="manager">Payments</button>
+      <button role="tab" class="aba" aria-selected="false" data-aba="staff" data-papel="owner">Staff</button>
     </div>
+
+    <!-- Today: class lists -->
+    <section class="painel admin-painel" data-painel="today">
+      <div class="admin-cabeca">
+        <h2 data-dia-titulo>Today</h2>
+        <div class="dia-nav">
+          <button type="button" class="mini" data-dia="-1" aria-label="Previous day">‹</button>
+          <input type="date" data-dia-escolha aria-label="Choose a date">
+          <button type="button" class="mini" data-dia="1" aria-label="Next day">›</button>
+          <button type="button" class="mini" data-dia="0">Today</button>
+          <button type="button" class="botao botao--pequeno" data-walkin data-papel="manager">Add booking</button>
+        </div>
+      </div>
+      <div class="dia-aulas" data-dia-aulas></div>
+    </section>
 
     <!-- Bookings -->
-    <section class="painel admin-painel" data-painel="bookings">
+    <section class="painel admin-painel" data-painel="bookings" hidden>
       <div class="admin-cabeca">
         <h2>Bookings</h2>
-        <label class="filtro">Show
-          <select data-filtro>
-            <option value="upcoming">Upcoming</option>
-            <option value="today">Today</option>
-            <option value="awaiting-payment">Awaiting payment</option>
-            <option value="cancelled">Cancelled</option>
-            <option value="all">All</option>
-          </select>
-        </label>
+        <div class="filtros">
+          <input type="search" placeholder="Search name or phone" data-busca-reservas aria-label="Search bookings">
+          <label class="filtro">Show
+            <select data-filtro>
+              <option value="upcoming">Upcoming</option>
+              <option value="today">Today</option>
+              <option value="awaiting-payment">Awaiting payment</option>
+              <option value="waitlist">Waitlist</option>
+              <option value="past">Past</option>
+              <option value="cancelled">Cancelled</option>
+              <option value="all">All</option>
+            </select>
+          </label>
+        </div>
       </div>
       <div class="tabela-rolagem">
         <table class="tabela">
@@ -84,27 +101,187 @@
     <section class="painel admin-painel" data-painel="timetable" hidden>
       <div class="admin-cabeca">
         <h2>Weekly timetable</h2>
-        <button type="button" class="botao botao--linha botao--pequeno" data-restaurar>Reset to sample</button>
+        <p class="nota sem-margem">Changes show on the website straight away. To cancel one date or set a substitute, use <strong>Today</strong>.</p>
       </div>
-
-      <form class="admin-nova" data-nova>
-        <div class="campo"><label for="n-dia">Day</label>
-          <select id="n-dia" name="day" required></select></div>
-        <div class="campo"><label for="n-hora">Start</label>
-          <input id="n-hora" name="time" type="time" value="07:00" required></div>
-        <div class="campo campo--nome"><label for="n-nome">Class name</label>
-          <input id="n-nome" name="name" placeholder="Reformer Flow" required></div>
-        <div class="campo"><label for="n-dur">Minutes</label>
-          <input id="n-dur" name="duration" type="number" min="15" max="180" step="5" value="50" required></div>
-        <div class="campo"><label for="n-cap">Spots</label>
-          <input id="n-cap" name="capacity" type="number" min="1" max="60" value="8" required></div>
+      <form class="admin-nova" data-nova data-papel="manager">
+        <div class="campo"><label for="n-dia">Day</label><select id="n-dia" name="day" required></select></div>
+        <div class="campo"><label for="n-hora">Start</label><input id="n-hora" name="time" type="time" value="07:00" required></div>
+        <div class="campo campo--nome"><label for="n-nome">Class name</label><input id="n-nome" name="name" placeholder="Reformer Flow" required></div>
+        <div class="campo"><label for="n-tipo">Type</label><select id="n-tipo" name="type"><option value="reformer">Reformer</option><option value="mat">Mat</option><option value="private">Private</option></select></div>
+        <div class="campo"><label for="n-dur">Minutes</label><input id="n-dur" name="duration" type="number" min="10" max="240" step="5" value="50" required></div>
+        <div class="campo"><label for="n-cap">Spots</label><input id="n-cap" name="capacity" type="number" min="1" max="100" value="8" required></div>
+        <div class="campo"><label for="n-inst">Instructor</label><select id="n-inst" name="instructorId" data-instrutores></select></div>
         <button class="botao botao--pequeno" type="submit">Add class</button>
       </form>
-
       <div class="semana" data-semana></div>
+    </section>
+
+    <!-- Clients -->
+    <section class="painel admin-painel" data-painel="clients" hidden>
+      <div class="admin-cabeca">
+        <h2>Clients</h2>
+        <div class="filtros">
+          <input type="search" placeholder="Search name, phone or email" data-busca-clientes aria-label="Search clients">
+          <button type="button" class="botao botao--pequeno" data-novo-cliente data-papel="manager">Add client</button>
+        </div>
+      </div>
+      <div class="tabela-rolagem">
+        <table class="tabela">
+          <thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>Credits</th><th>Last class</th><th>Classes</th></tr></thead>
+          <tbody data-clientes></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Payments -->
+    <section class="painel admin-painel" data-painel="payments" hidden>
+      <div class="admin-cabeca">
+        <h2>Payments</h2>
+        <button type="button" class="botao botao--pequeno" data-novo-pagamento>Record a payment</button>
+      </div>
+      <div class="admin-resumo admin-resumo--mini" data-pag-resumo></div>
+      <div class="tabela-rolagem">
+        <table class="tabela">
+          <thead><tr><th>Date</th><th>Client</th><th>For</th><th>Method</th><th>Reference</th><th class="num">Amount (KES)</th><th>By</th></tr></thead>
+          <tbody data-pagamentos></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Staff -->
+    <section class="painel admin-painel" data-painel="staff" hidden>
+      <div class="admin-cabeca"><h2>Staff</h2></div>
+      <p class="nota sem-margem">Add someone here, then they sign in on this page with the same email address. <strong>Instructors</strong> see the schedule, mark attendance and add client notes. <strong>Managers</strong> can also handle bookings, payments, clients and the timetable. <strong>Owners</strong> can also manage staff.</p>
+      <form class="admin-nova admin-nova--staff" data-novo-staff>
+        <div class="campo"><label for="s-nome">Name</label><input id="s-nome" name="name" required></div>
+        <div class="campo campo--nome"><label for="s-email">Email they sign in with</label><input id="s-email" name="email" type="email" required></div>
+        <div class="campo"><label for="s-papel">Role</label><select id="s-papel" name="role"><option value="instructor">Instructor</option><option value="manager">Manager</option><option value="owner">Owner</option></select></div>
+        <button class="botao botao--pequeno" type="submit">Add staff</button>
+      </form>
+      <div class="tabela-rolagem">
+        <table class="tabela">
+          <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th><span class="sr">Actions</span></th></tr></thead>
+          <tbody data-equipe></tbody>
+        </table>
+      </div>
     </section>
   </div>
 </main>
+
+<!-- Dialog: record payment -->
+<dialog class="admin-dialogo" data-dlg-pagamento aria-labelledby="dp-titulo">
+  <form class="painel" method="dialog" novalidate>
+    <button type="button" class="fechar" aria-label="Close" data-fechar>×</button>
+    <span class="rotulo">Payment</span>
+    <h3 id="dp-titulo">Record a payment</h3>
+    <p class="dp-sobre" data-dp-sobre></p>
+    <div class="form">
+      <div class="campo campo--inteiro" data-dp-cliente-campo>
+        <label for="dp-cliente">Client</label>
+        <input id="dp-cliente" name="client" list="dp-clientes" placeholder="Start typing a name or phone" autocomplete="off">
+        <datalist id="dp-clientes"></datalist>
+      </div>
+      <div class="campo campo--inteiro" data-dp-tipo-campo>
+        <label for="dp-tipo">For</label>
+        <select id="dp-tipo" name="pack"></select>
+      </div>
+      <div class="campo" data-dp-creditos-campo>
+        <label for="dp-creditos">Class credits to add</label>
+        <input id="dp-creditos" name="credits" type="number" min="0" max="500" value="0">
+      </div>
+      <div class="campo">
+        <label for="dp-valor">Amount (KES)</label>
+        <input id="dp-valor" name="amount" type="number" min="0" step="1" inputmode="numeric" required>
+      </div>
+      <fieldset class="campo campo--inteiro pagar">
+        <legend>Paid by</legend>
+        <div class="pagar-opcoes">
+          <label class="opcao"><input type="radio" name="method" value="mpesa" checked><span>M-Pesa</span></label>
+          <label class="opcao"><input type="radio" name="method" value="card"><span>Card</span></label>
+          <label class="opcao"><input type="radio" name="method" value="cash"><span>Cash</span></label>
+        </div>
+      </fieldset>
+      <div class="campo campo--inteiro">
+        <label for="dp-ref">Reference <small>(M-Pesa code or receipt number, optional)</small></label>
+        <input id="dp-ref" name="reference" maxlength="80" autocomplete="off">
+      </div>
+      <button type="submit" class="botao campo--inteiro">Save payment</button>
+      <p class="form-status campo--inteiro" role="status" aria-live="polite"></p>
+    </div>
+  </form>
+</dialog>
+
+<!-- Dialog: add booking (walk-in / phone) -->
+<dialog class="admin-dialogo" data-dlg-reserva aria-labelledby="dr-titulo">
+  <form class="painel" method="dialog" novalidate>
+    <button type="button" class="fechar" aria-label="Close" data-fechar>×</button>
+    <span class="rotulo">Booking</span>
+    <h3 id="dr-titulo">Add a booking</h3>
+    <div class="form">
+      <div class="campo"><label for="dr-data">Date</label><input id="dr-data" name="date" type="date" required></div>
+      <div class="campo"><label for="dr-aula">Class</label><select id="dr-aula" name="classId" required></select></div>
+      <div class="campo campo--inteiro">
+        <label for="dr-nome">Client name</label>
+        <input id="dr-nome" name="name" list="dr-clientes" autocomplete="off" required>
+        <datalist id="dr-clientes"></datalist>
+      </div>
+      <div class="campo"><label for="dr-tel">Phone</label><input id="dr-tel" name="phone" type="tel" required></div>
+      <div class="campo"><label for="dr-email">Email <small>(optional)</small></label><input id="dr-email" name="email" type="email"></div>
+      <div class="campo campo--inteiro"><label for="dr-saude">Health notes <small>(optional)</small></label><textarea id="dr-saude" name="health" rows="2"></textarea></div>
+      <fieldset class="campo campo--inteiro pagar">
+        <legend>Payment</legend>
+        <div class="pagar-opcoes">
+          <label class="opcao"><input type="radio" name="payment" value="studio" checked><span>At the studio</span></label>
+          <label class="opcao"><input type="radio" name="payment" value="mpesa"><span>M-Pesa</span></label>
+          <label class="opcao"><input type="radio" name="payment" value="card"><span>Card</span></label>
+        </div>
+      </fieldset>
+      <label class="opcao campo--inteiro"><input type="checkbox" name="firstTime"><span>First class at the studio</span></label>
+      <button type="submit" class="botao campo--inteiro">Add booking</button>
+      <p class="form-status campo--inteiro" role="status" aria-live="polite"></p>
+    </div>
+  </form>
+</dialog>
+
+<!-- Dialog: client -->
+<dialog class="admin-dialogo admin-dialogo--largo" data-dlg-cliente aria-labelledby="dc-titulo">
+  <div class="painel">
+    <button type="button" class="fechar" aria-label="Close" data-fechar>×</button>
+    <span class="rotulo">Client</span>
+    <h3 id="dc-titulo" data-dc-nome>New client</h3>
+    <form class="form" data-dc-form novalidate>
+      <div class="campo campo--inteiro"><label for="dc-nome">Name</label><input id="dc-nome" name="name" required></div>
+      <div class="campo"><label for="dc-tel">Phone</label><input id="dc-tel" name="phone" type="tel"></div>
+      <div class="campo"><label for="dc-email">Email</label><input id="dc-email" name="email" type="email"></div>
+      <div class="campo"><label for="dc-creditos">Class credits</label><input id="dc-creditos" name="credits" type="number" min="0" max="500"></div>
+      <div class="campo campo--inteiro"><label for="dc-saude">Health notes</label><textarea id="dc-saude" name="health" rows="3"></textarea></div>
+      <div class="campo campo--inteiro"><label for="dc-notas">General notes</label><textarea id="dc-notas" name="notes" rows="2"></textarea></div>
+      <div class="dc-acoes campo--inteiro">
+        <button type="submit" class="botao botao--pequeno">Save client</button>
+        <button type="button" class="botao botao--linha botao--pequeno" data-dc-pagar>Record payment</button>
+      </div>
+      <p class="form-status campo--inteiro" role="status" aria-live="polite"></p>
+    </form>
+    <div class="dc-extra" data-dc-extra>
+      <div>
+        <h4>Staff notes</h4>
+        <form class="dc-nota" data-dc-nota>
+          <input name="text" placeholder="Add a note (seen by all staff)" aria-label="New note" maxlength="2000">
+          <button type="submit" class="mini">Add</button>
+        </form>
+        <ul class="dc-lista" data-dc-notas></ul>
+      </div>
+      <div>
+        <h4>Classes</h4>
+        <ul class="dc-lista" data-dc-historico></ul>
+        <h4>Payments</h4>
+        <ul class="dc-lista" data-dc-pagamentos></ul>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<div class="aviso-flutuante" role="status" aria-live="polite" data-aviso hidden></div>
 
 <script src="config.js"></script>
 <script src="reservas.js"></script>

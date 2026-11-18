@@ -1,7 +1,10 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
-  "installCommand": "",
   "buildCommand": "echo 'static site, no build step'",
-  "outputDirectory": "site"
+  "outputDirectory": "site",
+  "regions": ["fra1"],
+  "headers": [
+    { "source": "/admin.html", "headers": [{ "key": "X-Robots-Tag", "value": "noindex" }] }
+  ]
 }
