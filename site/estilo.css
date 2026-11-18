@@ -361,3 +361,6 @@ dialog.reserva::backdrop { background: rgb(38 56 46 / .35); backdrop-filter: blu
 .opcao.campo--inteiro { justify-self: start; }
 .campo-isca { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 .reserva-espera { margin-top: 0; }
+
+/* Footer: staff entrance to the admin */
+.botao-admin { text-decoration: none; }
