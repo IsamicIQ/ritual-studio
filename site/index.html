@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ritual Studio · Pilates</title>
+  <meta name="description" content="Ritual Studio is a pilates studio in Kenya. See the weekly timetable, book reformer and mat classes online, and pay by M-Pesa, card or at the studio.">
+  <meta property="og:title" content="Ritual Studio · Pilates">
+  <meta property="og:description" content="Make movement your ritual. See the timetable and book your pilates class online.">
+  <meta property="og:image" content="assets/frames/desktop/f_0001.webp">
+  <meta name="theme-color" content="#ECD3C8">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Ccircle cx=%2232%22 cy=%2232%22 r=%2232%22 fill=%22%234F6B57%22/%3E%3Ctext x=%2232%22 y=%2244%22 font-family=%22Georgia,serif%22 font-size=%2234%22 text-anchor=%22middle%22 fill=%22%23F7EEE9%22%3ER%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="preload" as="image" href="assets/frames/desktop/f_0001.webp">
+  <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+
+<header class="topo">
+  <a href="#inicio" class="marca" aria-label="Ritual Studio, back to top">
+    <span class="marca-texto">Ritual Studio</span>
+  </a>
+  <nav class="menu" aria-label="Sections">
+    <a href="#studio">Studio</a>
+    <a href="#classes">Classes</a>
+    <a href="#timetable">Timetable</a>
+    <a href="#packages">Packages</a>
+    <a href="#timetable" class="menu-cta">Book a class</a>
+  </nav>
+</header>
+
+<main>
+
+  <!-- OPENING: the video plays with the scroll -->
+  <section id="inicio" class="cine" style="--altura: 420vh">
+    <div class="cine-palco">
+      <canvas class="cine-canvas" aria-hidden="true"></canvas>
+      <div class="cine-vinheta"></div>
+
+      <div class="momento" data-de="0" data-ate="0.3">
+        <div class="painel painel--vidro">
+          <h1 class="titulo-abertura">Make movement your&nbsp;ritual.</h1>
+          <p class="apoio">Ritual Studio · Pilates, Kenya</p>
+        </div>
+      </div>
+      <div class="momento momento--direita" data-de="0.38" data-ate="0.66">
+        <div class="painel painel--vidro">
+          <p class="destaque">Reformer and mat classes, taught at the pace of your&nbsp;body.</p>
+        </div>
+      </div>
+      <div class="momento momento--centro" data-de="0.74" data-ate="1">
+        <div class="painel painel--vidro">
+          <p class="destaque">Your first class starts&nbsp;here.</p>
+          <a href="#timetable" class="botao">Book a class</a>
+        </div>
+      </div>
+
+      <div class="cine-dica" aria-hidden="true"><span></span>scroll</div>
+    </div>
+  </section>
+
+  <!-- 01 STUDIO: art on the right -->
+  <section id="studio" class="secao">
+    <img class="arte arte--direita" src="assets/img/studio.webp" alt="" loading="lazy">
+    <div class="secao-grade">
+      <div class="painel revelar">
+        <span class="rotulo">01</span>
+        <h2>A quiet room to come back&nbsp;to.</h2>
+        <p>Ritual Studio is built around a simple habit: an hour of slow, deliberate work on the reformer or the mat, often enough that it becomes part of your week.</p>
+        <p>Your instructor watches how you move, sets the springs for your body and adjusts each exercise so you can feel it working, whether you are new to pilates or have practised for years.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 CLASSES: background art + cards -->
+  <section id="classes" class="secao secao--classes">
+    <img class="arte arte--fundo" src="assets/img/classes.webp" alt="" loading="lazy">
+    <div class="painel painel--classes revelar">
+      <span class="rotulo">02</span>
+      <h2 class="abre-titulo">
+        <button type="button" class="abre" aria-expanded="false" aria-controls="lista-classes">
+          <span>Classes</span>
+          <span class="abre-dica"><span class="abre-texto">View classes</span><i aria-hidden="true"></i></span>
+        </button>
+      </h2>
+      <div class="abre-corpo" id="lista-classes">
+        <div class="abre-dentro">
+          <ul class="classes-lista">
+            <li>
+              <h3>Reformer</h3>
+              <p>Springs, straps and a sliding carriage add resistance and support, so every movement is controlled from start to finish.</p>
+            </li>
+            <li>
+              <h3>Mat</h3>
+              <p>The classical pilates sequence on the floor: core strength, breath and posture, using your own body weight.</p>
+            </li>
+            <li>
+              <h3>Private sessions</h3>
+              <p>One to one on the reformer, for a first introduction, an injury you are working around or a specific goal.</p>
+            </li>
+          </ul>
+          <a href="#timetable" class="botao">See the timetable</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 TIMETABLE AND BOOKING: art on the left -->
+  <section id="timetable" class="secao">
+    <img class="arte arte--esquerda" src="assets/img/timetable.webp" alt="" loading="lazy">
+    <div class="secao-grade secao-grade--direita secao-grade--larga">
+      <div class="painel revelar">
+        <span class="rotulo">03</span>
+        <h2>This week's timetable</h2>
+        <div class="dias" role="tablist" aria-label="Choose a day"></div>
+        <ul class="aulas" aria-live="polite"></ul>
+        <p class="nota">Times shown are a sample until the studio publishes its schedule.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 PACKAGES: art on the right -->
+  <section id="packages" class="secao">
+    <img class="arte arte--direita" src="assets/img/packages.webp" alt="" loading="lazy">
+    <div class="secao-grade">
+      <div class="painel revelar">
+        <span class="rotulo">04</span>
+        <h2>Packages</h2>
+        <ul class="pacotes"></ul>
+        <p class="pagamento">Pay by <strong>M-Pesa</strong>, <strong>card</strong> or <strong>at the studio</strong>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 FIRST VISIT: art on the left -->
+  <section id="first-visit" class="secao">
+    <img class="arte arte--esquerda" src="assets/img/first-visit.webp" alt="" loading="lazy">
+    <div class="secao-grade secao-grade--direita">
+      <div class="painel revelar">
+        <span class="rotulo">05</span>
+        <h2>Your first visit</h2>
+        <ol class="passos">
+          <li><strong>Book your spot</strong><span>Pick a class on the timetable and choose how you want to pay.</span></li>
+          <li><strong>Arrive ten minutes early</strong><span>Time to settle in and tell your instructor about any injuries before class starts.</span></li>
+          <li><strong>Bring grip socks and water</strong><span>Grip socks keep you steady on the reformer. Wear clothes you can stretch in.</span></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 FIND US: soft background art -->
+  <section id="find-us" class="secao secao--contato">
+    <img class="arte arte--fundo arte--suave" src="assets/img/find-us.webp" alt="" loading="lazy">
+    <div class="painel painel--form revelar">
+      <span class="rotulo">06</span>
+      <h2>Come and find us</h2>
+      <p>Timetable changes, new classes and studio news go out on Instagram and TikTok first.</p>
+      <div class="sociais">
+        <a class="botao botao--linha" href="https://www.instagram.com/ritualstudio.ke/" target="_blank" rel="noopener">Instagram · @ritualstudio.ke</a>
+        <a class="botao botao--linha" href="https://www.tiktok.com/@ritualstudio.ke" target="_blank" rel="noopener">TikTok · @ritualstudio.ke</a>
+      </div>
+      <a href="#timetable" class="botao">Book a class</a>
+    </div>
+  </section>
+
+</main>
+
+<footer class="rodape">
+  <div class="painel rodape-painel">
+    <span class="marca-texto">Ritual Studio</span>
+    <span>Pilates · Kenya</span>
+    <span>© <span data-ano></span> Ritual Studio</span>
+    <a href="admin.html" class="link-discreto">Staff</a>
+  </div>
+</footer>
+
+<!-- Booking dialog -->
+<dialog class="reserva" aria-labelledby="reserva-titulo">
+  <form class="painel reserva-painel" method="dialog" novalidate>
+    <button type="button" class="fechar" aria-label="Close">×</button>
+    <div class="reserva-passo" data-passo="form">
+      <span class="rotulo">Booking</span>
+      <h3 id="reserva-titulo" class="reserva-aula"></h3>
+      <p class="reserva-quando"></p>
+      <div class="form">
+        <div class="campo campo--inteiro">
+          <label for="r-nome">Full name</label>
+          <input id="r-nome" name="name" autocomplete="name" required>
+        </div>
+        <div class="campo">
+          <label for="r-tel">Phone</label>
+          <input id="r-tel" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="07XX XXX XXX" required>
+        </div>
+        <div class="campo">
+          <label for="r-email">Email</label>
+          <input id="r-email" name="email" type="email" autocomplete="email" required>
+        </div>
+        <fieldset class="campo campo--inteiro pagar">
+          <legend>How would you like to pay?</legend>
+          <div class="pagar-opcoes"></div>
+        </fieldset>
+        <button type="submit" class="botao campo--inteiro">Confirm booking</button>
+        <p class="form-status campo--inteiro" role="status" aria-live="polite"></p>
+      </div>
+    </div>
+    <div class="reserva-passo" data-passo="ok" hidden>
+      <span class="rotulo">Booked</span>
+      <h3>See you on the reformer.</h3>
+      <p class="reserva-resumo"></p>
+      <p class="nota">Preview: online payment isn't connected yet, so nothing was charged.</p>
+      <button type="button" class="botao fechar-ok">Done</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="config.js"></script>
+<script src="reservas.js"></script>
+<script src="app.js"></script>
+<script src="horario.js"></script>
+</body>
+</html>

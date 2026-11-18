@@ -1,0 +1,77 @@
+/* Ritual Studio · admin page (builds on estilo.css tokens) */
+body.admin { background: var(--fundo); }
+body.admin::after { display: none; } /* no film grain on a work screen */
+.admin .topo { background: rgb(236 211 200 / .9); }
+.admin-tag { font-size: 12px; font-weight: 600; letter-spacing: .24em; text-transform: uppercase; color: var(--acento); }
+.admin .menu a:not(.menu-cta) { display: inline; }
+
+.admin-main { max-width: var(--largura); margin: 0 auto; padding: 110px var(--gutter) 60px; display: grid; gap: 20px; }
+.admin-main h1 { font-size: clamp(40px, 5vw, 60px); }
+.admin-main h2 { font-size: clamp(28px, 3vw, 38px); margin: 0; }
+.admin-main .painel { backdrop-filter: none; -webkit-backdrop-filter: none; background: rgb(246 234 228 / .85); }
+
+.admin-trava { max-width: 460px; margin: 6vh auto 0; width: 100%; }
+.admin-trava-form { display: grid; gap: 14px; margin-top: 8px; }
+
+.admin-app { display: grid; gap: 20px; }
+.admin-app[hidden], [data-painel][hidden] { display: none; }
+.admin-aviso { padding: 16px 22px; font-size: 14px; color: var(--texto-suave); border-color: rgb(79 107 87 / .35); }
+.admin-aviso strong { color: var(--texto); }
+
+.admin-resumo { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
+.stat { padding: 20px 24px; display: grid; gap: 4px; }
+.stat span { font-size: 13px; color: var(--texto-suave); }
+.stat b { font: 500 36px/1 var(--fonte-texto); letter-spacing: -.02em; }
+
+.admin-abas { display: flex; gap: 8px; }
+.aba { font: 500 15px/1 var(--fonte-texto); padding: 12px 22px; border-radius: 999px; border: 1px solid rgb(38 56 46 / .25); background: transparent; color: var(--texto); cursor: pointer; }
+.aba[aria-selected="true"] { background: var(--acento); border-color: var(--acento); color: var(--acento-texto); }
+
+.admin-painel { display: grid; gap: 20px; }
+.admin-cabeca { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+.filtro { font-size: 14px; color: var(--texto-suave); display: flex; gap: 8px; align-items: center; }
+.admin select, .admin input {
+  font: inherit; color: var(--texto); background: rgb(255 255 255 / .6);
+  border: 1px solid rgb(38 56 46 / .22); border-radius: 10px; padding: 10px 12px;
+}
+.admin select:focus, .admin input:focus { outline: 2px solid var(--acento); outline-offset: 1px; }
+
+.tabela-rolagem { overflow-x: auto; }
+.tabela { width: 100%; border-collapse: collapse; font-size: 15px; min-width: 720px; }
+.tabela th { text-align: left; font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--texto-suave); padding: 0 12px 12px; border-bottom: 1px solid var(--linha); }
+.tabela td { padding: 14px 12px; border-bottom: 1px solid var(--linha); vertical-align: top; }
+.tabela small { display: block; color: var(--texto-suave); font-size: 13px; }
+.vazio-tabela { color: var(--texto-suave); text-align: center; padding: 32px 12px !important; }
+.acoes { white-space: nowrap; text-align: right; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+.selo { display: inline-block; font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 999px; background: rgb(38 56 46 / .08); }
+.selo--paid { background: rgb(79 107 87 / .18); color: #2F4A37; }
+.selo--awaiting-payment { background: rgb(184 132 74 / .2); color: #6B4A1F; }
+.selo--cancelled { background: rgb(164 71 58 / .14); color: #8A3A2F; text-decoration: line-through; }
+
+.mini { font: 500 13px/1 var(--fonte-texto); padding: 8px 12px; border-radius: 999px; border: 1px solid rgb(38 56 46 / .25); background: transparent; color: var(--texto); cursor: pointer; }
+.mini:hover { border-color: var(--acento); }
+.mini--perigo { color: #8A3A2F; }
+.mini--perigo:hover { border-color: #A4473A; }
+.mini + .mini { margin-left: 6px; }
+
+.admin-nova { display: grid; grid-template-columns: 150px 120px 1fr 100px 90px auto; gap: 12px; align-items: end; padding-bottom: 20px; border-bottom: 1px solid var(--linha); }
+.admin-nova .campo label { font-size: 13px; color: var(--texto-suave); }
+
+.semana { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px; }
+.semana-dia h3 { font-size: 24px; margin-bottom: .3em; }
+.semana-aula { display: grid; grid-template-columns: 50px 1fr; gap: 4px 10px; padding: 12px 0; border-top: 1px solid var(--linha); align-items: center; }
+.semana-aula time { font: 500 16px/1 var(--fonte-texto); }
+.semana-aula strong { display: block; font-weight: 600; font-size: 15px; }
+.semana-aula span { font-size: 13px; color: var(--texto-suave); }
+.semana-aula .cap { grid-column: 2; font-size: 13px; color: var(--texto-suave); display: flex; align-items: center; gap: 6px; }
+.semana-aula .cap input { width: 70px; padding: 6px 8px; }
+.semana-aula .mini { grid-column: 2; justify-self: start; }
+.sem-aula { font-size: 14px; border-top: 1px solid var(--linha); padding-top: 12px; }
+
+@media (max-width: 860px) {
+  .admin-nova { grid-template-columns: 1fr 1fr; }
+  .admin-nova .campo--nome { grid-column: 1 / -1; }
+  .admin-nova .botao { grid-column: 1 / -1; }
+}

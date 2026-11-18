@@ -1,0 +1,56 @@
+{
+  "nome": "Ritual Studio",
+  "slug": "ritual-studio",
+  "negocio": "Pilates studio. Main website: class timetable, online booking and payment, plus an admin area for staff to set class times and manage bookings.",
+  "publico": "Pilates clients in Kenya (city to confirm)",
+  "identidade": {
+    "cores": {
+      "fundo": "#ECD3C8",
+      "texto": "#26382E",
+      "acento": "#4F6B57"
+    },
+    "fontes": {
+      "titulo": "Cormorant Garamond",
+      "texto": "Figtree"
+    },
+    "clima": [
+      "relaxing",
+      "warm",
+      "earthy"
+    ],
+    "tema": "claro",
+    "notas": "Light pink + darker green are the studio colors; soft on the eyes but noticeable."
+  },
+  "logo": "/Users/ikram/Downloads/IMG_2789.heic (photo of the wall sign, serif capitals RITUAL / STUDIO; recreate as typography)",
+  "copy": {
+    "frase_abertura": "Make movement your ritual.",
+    "diferenciais": [],
+    "textos_prontos": "",
+    "depoimentos_reais": []
+  },
+  "referencias": [
+    "https://www.ritualstudio-ke.com/ (currently a maintenance page; Instagram/TikTok @ritualstudio.ke)"
+  ],
+  "whatsapp": null,
+  "email_contato": null,
+  "secoes": [
+    "studio",
+    "classes",
+    "timetable & booking",
+    "packages & payment",
+    "first visit",
+    "find us",
+    "admin (separate page)"
+  ],
+  "conceito": "Morning light moving through a quiet studio and settling on a reformer by the window (arch echoes the round sign).",
+  "modelos": {
+    "video": "google/veo-3.1",
+    "imagem": "google/gemini-3-pro-image"
+  },
+  "pagamentos": [
+    "M-Pesa",
+    "Card",
+    "Pay at the studio"
+  ],
+  "escopo": "Phase 1 (done 2026-11-17): cinematic site + timetable/booking/admin preview stored in browser localStorage. Phase 2: real backend (database, staff login, payments)."
+}
