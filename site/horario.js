@@ -94,8 +94,28 @@
   const enviar = form.querySelector('button[type="submit"]');
   let atual = null;
 
+  const C = S.contato || {};
+  const KESv = (n) => `KES ${Number(n || 0).toLocaleString("en-KE")}`;
+  const mpesaBox = form.querySelector("[data-mpesa]");
+  const mpesaStatus = form.querySelector("[data-mpesa-status]");
+  const mpesaEnviar = form.querySelector("[data-mpesa-enviar]");
+  const dica = form.querySelector("[data-pagar-dica]");
+  if (C.telefone) form.querySelector("[data-mpesa-numero]").textContent = C.telefone;
+  let reservaFeita = null;
+
   form.querySelector(".pagar-opcoes").innerHTML = (S.pagamentos || []).map((p, i) => `
     <label class="opcao"><input type="radio" name="payment" value="${esc(p.id)}" ${i === 0 ? "checked" : ""}><span>${esc(p.rotulo)}</span></label>`).join("");
+
+  function mostrarDica() {
+    const v = form.elements.payment.value;
+    const preco = atual ? KESv(atual.aula.price) : "";
+    dica.textContent = !atual ? ""
+      : atual.vagas < 1 ? "You won't pay anything unless a spot opens up for you."
+      : v === "mpesa" ? `After booking, you'll send ${preco} by M-Pesa to ${C.telefone || "the studio"}.`
+      : v === "card" ? `After booking, you'll pay ${preco} securely by card.`
+      : `Pay ${preco} when you arrive for class.`;
+  }
+  form.querySelector(".pagar-opcoes").addEventListener("change", mostrarDica);
 
   aulas.addEventListener("click", (e) => {
     const b = e.target.closest("[data-aula]");
@@ -103,14 +123,16 @@
     const o = R.aulasDoDia(semana[escolhido]).find((x) => x.aula.id === b.dataset.aula);
     if (!o) return;
     atual = o;
+    reservaFeita = null;
     form.querySelector(".reserva-aula").textContent = o.aula.name;
-    form.querySelector(".reserva-quando").textContent = `${R.dataLonga(o.date)} · ${o.aula.time} · ${o.aula.duration} min`;
+    form.querySelector(".reserva-quando").textContent = `${R.dataLonga(o.date)} · ${o.aula.time} · ${o.aula.duration} min${o.aula.price ? ` · ${KESv(o.aula.price)}` : ""}`;
     form.querySelector(".reserva-espera").hidden = o.vagas > 0;
     enviar.textContent = o.vagas > 0 ? "Confirm booking" : "Join the waitlist";
     status.textContent = "";
     status.className = "form-status campo--inteiro";
     passoForm.hidden = false;
     passoOk.hidden = true;
+    mostrarDica();
     dlg.showModal();
     form.elements.name.focus();
   });
@@ -120,8 +142,40 @@
   form.querySelector(".fechar-ok").addEventListener("click", fechar);
   dlg.addEventListener("click", (e) => { if (e.target === dlg) fechar(); });
 
+  /* M-Pesa: the client sends the confirmation code from their M-Pesa SMS */
+  async function enviarCodigo() {
+    if (!reservaFeita || mpesaEnviar.disabled) return;
+    const code = form.elements.mpesaCode.value.trim();
+    if (!code) { mpesaStatus.textContent = "Type the code from your M-Pesa SMS first."; mpesaStatus.className = "form-status falha"; return; }
+    mpesaEnviar.disabled = true;
+    mpesaStatus.textContent = "Sending…"; mpesaStatus.className = "form-status";
+    try {
+      await R.api("/api/mpesa-code", { method: "POST", body: { bookingId: reservaFeita.id, code } });
+      mpesaStatus.textContent = "Thank you! The studio will check your payment and confirm it.";
+      mpesaStatus.className = "form-status ok";
+      form.elements.mpesaCode.disabled = true;
+    } catch (e) {
+      mpesaStatus.textContent = e.message; mpesaStatus.className = "form-status falha";
+      mpesaEnviar.disabled = false;
+    }
+  }
+  mpesaEnviar.addEventListener("click", enviarCodigo);
+
+  /* Card: Stripe Checkout */
+  async function pagarComCartao(b) {
+    const nota = form.querySelector(".reserva-nota");
+    nota.textContent = "Taking you to the secure card payment page…";
+    try {
+      const { url } = await R.api("/api/checkout", { method: "POST", body: { bookingId: b.id } });
+      location.href = url;
+    } catch (e) {
+      nota.textContent = `Your spot is booked, but card payment didn't open (${e.message}) You can pay by M-Pesa to ${C.telefone || "the studio"} or at the studio.`;
+    }
+  }
+
   form.addEventListener("submit", async (ev) => {
     ev.preventDefault();
+    if (!passoOk.hidden) { enviarCodigo(); return; } // Enter in the M-Pesa code box
     if (!atual || enviar.disabled) return;
     let valido = true;
     form.querySelectorAll("[required]").forEach((c) => {
@@ -153,23 +207,31 @@
         firstTime: f.firstTime.checked,
         website: f.website.value,
       });
+      reservaFeita = b;
       const metodo = (S.pagamentos || []).find((p) => p.id === b.payment);
-      const tel = (S.contato || {}).telefone;
       const primeiro = b.name.split(" ")[0];
       const espera = b.status === "waitlist";
+      const aPagar = b.status === "awaiting-payment";
       passoOk.querySelector("h3").textContent = espera ? "You're on the waitlist." : "See you on the reformer.";
       form.querySelector(".reserva-resumo").textContent = espera
-        ? `${primeiro}, ${b.className} on ${R.dataLonga(b.date)} at ${b.time} is full, so you're on the waitlist. If a spot opens up, it's yours and the studio will let you know.`
+        ? `${primeiro}, ${b.className} on ${R.dataLonga(b.date)} at ${b.time} is full, so you're on the waitlist. If a spot opens up, it's yours and the studio will let you know. Don't pay anything yet.`
         : `${primeiro}, you're booked into ${b.className} on ${R.dataLonga(b.date)} at ${b.time}. Payment: ${metodo ? metodo.rotulo : b.payment}.`;
-      form.querySelector(".reserva-nota").textContent = b.payment === "studio"
-        ? "You'll pay when you arrive for class."
-        : `Online payment isn't switched on yet, so nothing was charged. The studio will be in touch about paying.${tel ? ` Questions? Call ${tel}.` : ""}`;
-      form.reset();
-      form.querySelector('input[name="payment"]').checked = true;
+      mpesaBox.hidden = !(aPagar && b.payment === "mpesa");
+      form.querySelector("[data-mpesa-valor]").textContent = KESv(b.price);
+      mpesaStatus.textContent = "";
+      form.elements.mpesaCode.value = "";
+      form.elements.mpesaCode.disabled = false;
+      mpesaEnviar.disabled = false;
+      form.querySelector(".reserva-nota").textContent = espera ? ""
+        : b.payment === "studio" ? `You'll pay ${KESv(b.price)} when you arrive for class.`
+        : b.payment === "mpesa" ? `Questions? Call or WhatsApp ${C.telefone || "the studio"}.`
+        : "";
+      f.name.value = ""; f.phone.value = ""; f.email.value = ""; f.health.value = ""; f.firstTime.checked = false;
       passoForm.hidden = true;
       passoOk.hidden = false;
-      form.querySelector(".fechar-ok").focus();
+      (b.payment === "mpesa" && aPagar ? form.elements.mpesaCode : form.querySelector(".fechar-ok")).focus();
       atualizar();
+      if (aPagar && b.payment === "card") pagarComCartao(b);
     } catch (e) {
       status.textContent = e.message;
       status.className = "form-status campo--inteiro falha";
@@ -178,6 +240,23 @@
       enviar.disabled = false;
     }
   });
+
+  /* Back from the Stripe payment page */
+  const volta = new URLSearchParams(location.search);
+  if (volta.has("paid") || volta.get("payment") === "cancelled") {
+    const pago = volta.has("paid");
+    atual = null; reservaFeita = null;
+    passoForm.hidden = true;
+    passoOk.hidden = false;
+    mpesaBox.hidden = true;
+    passoOk.querySelector("h3").textContent = pago ? "Payment received." : "Payment not completed.";
+    form.querySelector(".reserva-resumo").textContent = pago
+      ? "Thank you, your card payment went through and your spot is confirmed. See you on the reformer."
+      : `Your spot is still booked, but the card payment was cancelled. You can pay by M-Pesa to ${C.telefone || "the studio"} or at the studio.`;
+    form.querySelector(".reserva-nota").textContent = "";
+    history.replaceState(null, "", location.pathname + location.hash);
+    dlg.showModal();
+  }
 })();
 
 /* Classes: open / close the list */

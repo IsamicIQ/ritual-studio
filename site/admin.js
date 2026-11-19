@@ -82,7 +82,8 @@
 
   /* ── Shared bits of markup ── */
   const selo = (b) => `<span class="selo selo--${esc(b.status)}">${esc(STATUS[b.status] || b.status)}</span>`;
-  const pagamentoTexto = (b) => b.status === "paid" ? `Paid · ${esc(PAG[b.paidWith] || b.paidWith || "")}` : esc(PAG[b.payment] || b.payment);
+  const pagamentoTexto = (b) => b.status === "paid" ? `Paid · ${esc(PAG[b.paidWith] || b.paidWith || "")}`
+    : `${esc(PAG[b.payment] || b.payment)}${b.price ? ` · KES ${KES(b.price)}` : ""}${b.mpesaCode && b.status === "awaiting-payment" ? `<small class="codigo-mpesa" title="Code the client sent after paying. Check it against the M-Pesa messages on the studio phone.">M-Pesa code: <b>${esc(b.mpesaCode)}</b></small>` : ""}`;
   const quando = (b) => `${esc(R.dataCurta(b.date))} · ${esc(b.time)}`;
 
   function acoesReserva(b) {
@@ -303,6 +304,7 @@
     tentar(acao("class.add", {
       day: Number(f.day.value), time: f.time.value, name: f.name.value.trim(), type: f.type.value,
       duration: Number(f.duration.value), capacity: Number(f.capacity.value), instructorId: f.instructorId.value || null,
+      price: f.price.value === "" ? null : Number(f.price.value),
     }, `${f.name.value.trim()} added to ${R.DIAS_LONGOS[f.day.value]}s.`).then(() => { f.name.value = ""; }));
   });
 
@@ -323,6 +325,7 @@
               <input value="${esc(c.name)}" data-campo="name" data-foco="${esc(c.id)}-name" aria-label="Class name">
               <label>Min <input type="number" min="10" max="240" step="5" value="${esc(c.duration)}" data-campo="duration" data-foco="${esc(c.id)}-duration"></label>
               <label>Spots <input type="number" min="1" max="100" value="${esc(c.capacity)}" data-campo="capacity" data-foco="${esc(c.id)}-capacity"></label>
+              <label>Price (KES) <input type="number" min="0" max="1000000" step="50" value="${esc(c.price)}" data-campo="price" data-foco="${esc(c.id)}-price"></label>
               <select data-campo="type" data-foco="${esc(c.id)}-type" aria-label="Type">
                 ${[["reformer", "Reformer"], ["mat", "Hot Pilates / mat"], ["private", "Private"]].map(([t, rot]) => `<option value="${t}" ${c.type === t ? "selected" : ""}>${rot}</option>`).join("")}
               </select>
@@ -331,7 +334,7 @@
             </div>` : `
             <div class="semana-aula">
               <time>${esc(c.time)}</time>
-              <div><strong>${esc(c.name)}</strong><span>${esc(c.duration)} min · ${esc(c.capacity)} spots${c.instructorId ? ` · ${esc(nomeStaff(c.instructorId))}` : ""}</span></div>
+              <div><strong>${esc(c.name)}</strong><span>${esc(c.duration)} min · ${esc(c.capacity)} spots · KES ${KES(c.price)}${c.instructorId ? ` · ${esc(nomeStaff(c.instructorId))}` : ""}</span></div>
             </div>`).join("") : `<p class="sem-aula">No classes</p>`}
         </div>`;
     }).join("");
@@ -342,7 +345,7 @@
     if (!campo) return;
     const id = campo.closest("[data-classe]").dataset.classe;
     let v = campo.value;
-    if (campo.type === "number") { v = Number(v); if (!(v > 0)) return desenharSemana(); }
+    if (campo.type === "number") { v = Number(v); if (!(v > 0) && !(campo.dataset.campo === "price" && v === 0)) return desenharSemana(); }
     if (campo.dataset.campo === "name" && !v.trim()) return desenharSemana();
     tentar(acao("class.update", { id, [campo.dataset.campo]: v || null }, "Timetable updated.")).then(() => {}, () => desenharSemana());
   });
@@ -529,7 +532,8 @@
     $("[data-dp-tipo-campo]").hidden = !!b;
     $("#dp-clientes").innerHTML = D.clients.map((c) => `<option value="${esc(rotuloCliente(c))}"></option>`).join("");
     if (b && b.payment === "card") formPag.elements.method.value = "card";
-    if (b) formPag.elements.amount.value = precoDaAula(b);
+    if (b) formPag.elements.amount.value = b.price || precoDaAula(b);
+    if (b && b.mpesaCode) { formPag.elements.method.value = "mpesa"; formPag.elements.reference.value = b.mpesaCode; }
     mostrarCreditos();
     if (b) $("[data-dp-creditos-campo]").hidden = true;
     dlgPag.showModal();

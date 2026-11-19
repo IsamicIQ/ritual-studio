@@ -15,8 +15,8 @@ await sql.transaction([
   sql`delete from overrides`,
   sql`delete from classes`,
   ...TIMETABLE.map((c) => sql`
-    insert into classes (id, day, time, name, duration, capacity, level, type)
-    values (${id()}, ${c.day}, ${c.time}, ${c.name}, ${c.duration}, ${c.capacity}, ${c.level}, ${c.type})`),
+    insert into classes (id, day, time, name, duration, capacity, level, type, price)
+    values (${id()}, ${c.day}, ${c.time}, ${c.name}, ${c.duration}, ${c.capacity}, ${c.level}, ${c.type}, ${c.price})`),
 ]);
 const rows = await sql`select day, count(*)::int as n from classes group by day order by day`;
 console.log(`Timetable replaced: ${TIMETABLE.length} classes.`, rows.map((r) => `day ${r.day}: ${r.n}`).join(", "));

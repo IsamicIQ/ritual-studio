@@ -160,8 +160,8 @@ const OPS = {
   /* ── timetable ── */
   "class.add": ["manager", async (sql, a) => {
     const c = classFields(a, {});
-    return one(sql`insert into classes (id, day, time, name, duration, capacity, level, type, instructor_id)
-      values (${newId()}, ${c.day}, ${c.time}, ${c.name}, ${c.duration}, ${c.capacity}, ${c.level}, ${c.type}, ${c.instructorId})
+    return one(sql`insert into classes (id, day, time, name, duration, capacity, level, type, instructor_id, price)
+      values (${newId()}, ${c.day}, ${c.time}, ${c.name}, ${c.duration}, ${c.capacity}, ${c.level}, ${c.type}, ${c.instructorId}, ${c.price})
       returning id`);
   }],
 
@@ -169,7 +169,7 @@ const OPS = {
     const old = camel(await one(sql`select * from classes where id = ${str(a.id)}`));
     const c = classFields(a, old);
     return one(sql`update classes set day = ${c.day}, time = ${c.time}, name = ${c.name}, duration = ${c.duration},
-        capacity = ${c.capacity}, level = ${c.level}, type = ${c.type}, instructor_id = ${c.instructorId}
+        capacity = ${c.capacity}, level = ${c.level}, type = ${c.type}, instructor_id = ${c.instructorId}, price = ${c.price}
       where id = ${old.id} returning id`);
   }],
 
@@ -258,6 +258,8 @@ function classFields(a, old) {
     duration: int(v.duration, 10, 240, "Minutes"), capacity: int(v.capacity, 1, 100, "Spots"),
     level: str(v.level || "All levels", 40), type: v.type === "mat" ? "mat" : v.type === "private" ? "private" : "reformer",
     instructorId: v.instructorId ? str(v.instructorId) : null,
+    price: v.price === undefined || v.price === null || v.price === ""
+      ? (v.type === "mat" ? 2000 : 3000) : int(v.price, 0, 1_000_000, "Price"),
   };
 }
 

@@ -98,6 +98,17 @@ const statements = [
      text text not null,
      staff_id text references staff(id) on delete set null,
      date timestamptz not null default now())`,
+
+  /* Payments (added 2026-11-19): class prices, M-Pesa codes from clients, Stripe checkout. */
+  `alter table classes add column if not exists price int not null default 0`,
+  `update classes set price = case when type = 'mat' then 2000 else 3000 end where price = 0`,
+  `alter table bookings add column if not exists price int not null default 0`,
+  `alter table bookings add column if not exists mpesa_code text`,
+  `alter table bookings add column if not exists mpesa_code_at timestamptz`,
+  `alter table bookings add column if not exists stripe_session text`,
+  `create unique index if not exists bookings_stripe_session on bookings (stripe_session) where stripe_session is not null`,
+  `alter table payments add column if not exists stripe_session text`,
+  `create unique index if not exists payments_stripe_session on payments (stripe_session) where stripe_session is not null`,
 ];
 
 for (const s of statements) await sql.query(s);
@@ -106,8 +117,8 @@ const [{ n }] = await sql`select count(*)::int as n from classes`;
 if (n === 0) {
   for (const c of TIMETABLE) {
     const id = crypto.randomUUID().replace(/-/g, "").slice(0, 12);
-    await sql`insert into classes (id, day, time, name, duration, capacity, level, type)
-      values (${id}, ${c.day}, ${c.time}, ${c.name}, ${c.duration}, ${c.capacity}, ${c.level}, ${c.type})`;
+    await sql`insert into classes (id, day, time, name, duration, capacity, level, type, price)
+      values (${id}, ${c.day}, ${c.time}, ${c.name}, ${c.duration}, ${c.capacity}, ${c.level}, ${c.type}, ${c.price})`;
   }
   console.log(`Added the studio timetable (${TIMETABLE.length} classes).`);
 }

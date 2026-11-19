@@ -64,13 +64,13 @@ export async function createBooking(sql, { classId, date, contact, payment, sour
     sql`select pg_advisory_xact_lock(hashtext(${`${cls.id}@${date}`}))`,
     sql`
       insert into bookings (id, class_id, date, client_id, name, phone, email, payment, class_name, time,
-                            health, first_time, source, status, created_by)
+                            health, first_time, source, status, created_by, price)
       select ${id}, ${cls.id}, ${date}, ${client.id}, ${contact.name}, ${contact.phone}, ${contact.email},
              ${payment}, ${cls.name}, ${cls.time}, ${contact.health}, ${!!contact.firstTime}, ${source},
              case when (select count(*) from bookings where class_id = ${cls.id} and date = ${date}
                         and status = any(${LIVE})) < ${cls.capacity}
                   then ${okStatus} else 'waitlist' end,
-             ${createdBy}
+             ${createdBy}, ${cls.price}
       where not exists (select 1 from bookings where class_id = ${cls.id} and date = ${date}
                         and client_id = ${client.id} and status in ('confirmed','awaiting-payment','paid','waitlist'))
       returning *`,

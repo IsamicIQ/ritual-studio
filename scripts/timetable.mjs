@@ -1,5 +1,6 @@
 /* Ritual Studio's weekly schedule (from the studio's schedule graphics, November 2026).
    day: 1 = Monday … 6 = Saturday. Every class is 50 minutes.
+   price = the single-class price in KES (Reformer 3,000, Hot Pilates 2,000), charged for one booking.
    Staff change the live timetable on admin.html; this file only seeds a new database. */
 
 const SIG = "Ritual Signature", INTRO = "Ritual 101", POWER = "Ritual Power", HOT = "Hot Pilates";
@@ -26,5 +27,5 @@ const LEVEL = { [INTRO]: "Beginners", [POWER]: "Not for beginners" };
 export const TIMETABLE = [
   ...reformer.flatMap(([time, name, days]) => days.map((day) => ({ day, time, name, type: "reformer", level: LEVEL[name] || "All levels" }))),
   ...hot.map(([day, time]) => ({ day, time, name: HOT, type: "mat", level: "All levels" })),
-].map((c) => ({ duration: 50, capacity: 8, ...c }))
+].map((c) => ({ duration: 50, capacity: 8, price: c.type === "mat" ? 2000 : 3000, ...c })) // single-class prices (KES)
   .sort((a, b) => a.day - b.day || a.time.localeCompare(b.time));

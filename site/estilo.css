@@ -377,3 +377,17 @@ dialog.reserva::backdrop { background: rgb(38 56 46 / .35); backdrop-filter: blu
 .classes-aviso { font-size: 14px; font-style: italic; }
 .rodape-contato a { text-decoration: none; }
 .rodape-contato a:hover { text-decoration: underline; }
+
+/* Payment hints and M-Pesa instructions */
+.pagar-dica { margin: 10px 0 0; font-size: 13px; }
+.pagar-dica:empty { display: none; }
+.mpesa { margin: 4px 0 16px; padding: 18px 20px; border-radius: 14px; border: 1px solid rgb(79 107 87 / .35); background: rgb(255 255 255 / .35); }
+.mpesa[hidden] { display: none; }
+.mpesa h4 { margin: 0 0 8px; font: 600 15px/1.3 var(--fonte-texto); color: var(--texto); }
+.mpesa-passos { margin: 0 0 14px; padding-left: 20px; font-size: 14px; color: var(--texto-suave); display: grid; gap: 4px; }
+.mpesa-passos strong { color: var(--texto); }
+.mpesa-codigo { display: flex; gap: 8px; flex-wrap: wrap; }
+.mpesa-codigo input { flex: 1 1 180px; font: inherit; text-transform: uppercase; letter-spacing: .06em; color: var(--texto);
+  background: rgb(255 255 255 / .6); border: 1px solid rgb(38 56 46 / .22); border-radius: 12px; padding: 11px 14px; }
+.mpesa-codigo input:focus { outline: none; border-color: var(--acento); }
+.mpesa .form-status { margin-top: 8px; }

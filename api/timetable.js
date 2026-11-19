@@ -7,7 +7,7 @@ export const GET = handle(async () => {
   const sql = db();
   const from = studioToday(0), to = studioToday(DAYS_AHEAD - 1);
   const [classes, overrides, counts] = await Promise.all([
-    sql`select c.id, c.day, c.time, c.name, c.duration, c.capacity, c.level, c.type,
+    sql`select c.id, c.day, c.time, c.name, c.duration, c.capacity, c.level, c.type, c.price,
                split_part(s.name, ' ', 1) as instructor
         from classes c left join staff s on s.id = c.instructor_id and s.active
         where c.active order by c.day, c.time`,

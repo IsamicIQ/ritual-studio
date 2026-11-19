@@ -13,6 +13,6 @@ export const POST = handle(async (request) => {
   const contact = validateContact(body);
   const b = await createBooking(db(), { classId: body.classId, date, contact, payment: body.payment, source: "online" });
   return json({
-    booking: { id: b.id, status: b.status, className: b.className, date: b.date, time: b.time, payment: b.payment, name: b.name },
+    booking: { id: b.id, status: b.status, className: b.className, date: b.date, time: b.time, payment: b.payment, name: b.name, price: b.price },
   }, 201);
 });

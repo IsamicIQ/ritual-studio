@@ -1,8 +1,11 @@
 window.SITE = {
   nome: "Ritual Studio",
 
-  // Skipped for now. Fill in to show the floating WhatsApp button (digits only, e.g. 254700000000).
-  whatsapp: null,
+  // Floating WhatsApp button (number in international format, digits only).
+  whatsapp: {
+    numero: "254758097553",
+    mensagem: "Hi Ritual Studio! I'd like to ask about classes.",
+  },
 
   social: {
     instagram: "https://www.instagram.com/ritualstudio.ke/",
