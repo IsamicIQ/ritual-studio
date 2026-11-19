@@ -13,6 +13,7 @@ Live at https://ritual-studio-ten.vercel.app (hosted on Vercel; every push to `m
 - `api/`: Vercel Functions (Node.js)
   - `timetable.js` (public), `book.js` (public booking), `config.js` (public sign-in key)
   - `admin.js`: everything staff do; requires a signed-in staff member
+  - `checkout.js`, `paystack-webhook.js`: card payments with Paystack; `mpesa-code.js`: client submits their M-Pesa code
   - `_lib/`: database, sign-in check and booking rules
 - `scripts/db-setup.mjs`: creates the database tables (`npm run db:setup`)
 - `scripts/timetable.mjs`: the studio schedule used to seed a new database; `scripts/set-timetable.mjs` replaces the live timetable with it (only while there are no bookings)
@@ -22,6 +23,7 @@ Live at https://ritual-studio-ten.vercel.app (hosted on Vercel; every push to `m
 
 - **Neon Postgres**: the database (`DATABASE_URL`)
 - **Clerk**: staff sign-in (`CLERK_SECRET_KEY`, `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`)
+- **Paystack**: card payments in KES (`PAYSTACK_SECRET_KEY`, set by hand in Vercel). Webhook URL: `https://ritual-studio-ten.vercel.app/api/paystack-webhook`
 - **`OWNER_EMAILS`**: comma-separated emails that are always studio owners (currently ritualstudio8@gmail.com)
 
 ## Staff roles
@@ -41,5 +43,5 @@ vercel dev
 
 ## Not done yet
 
-- Online payments (M-Pesa STK push, card): bookings paid by M-Pesa or card show as "Awaiting payment" until staff record the payment.
+- Automatic M-Pesa confirmation: clients Send Money to 0758 097 553 and type their M-Pesa code; staff check it and click Mark paid. (Paystack can also take M-Pesa automatically if the studio wants that later.)
 - Emails/SMS to clients (booking confirmations, cancellations, waitlist moves).

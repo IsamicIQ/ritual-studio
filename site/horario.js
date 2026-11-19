@@ -161,7 +161,7 @@
   }
   mpesaEnviar.addEventListener("click", enviarCodigo);
 
-  /* Card: Stripe Checkout */
+  /* Card: Paystack checkout page */
   async function pagarComCartao(b) {
     const nota = form.querySelector(".reserva-nota");
     nota.textContent = "Taking you to the secure card payment page…";
@@ -241,21 +241,36 @@
     }
   });
 
-  /* Back from the Stripe payment page */
+  /* Back from Paystack's payment page: ?trxref=...&reference=... */
   const volta = new URLSearchParams(location.search);
-  if (volta.has("paid") || volta.get("payment") === "cancelled") {
-    const pago = volta.has("paid");
+  const ref = volta.get("reference") || volta.get("trxref");
+  if (ref) {
+    history.replaceState(null, "", location.pathname + "#timetable");
     atual = null; reservaFeita = null;
     passoForm.hidden = true;
     passoOk.hidden = false;
     mpesaBox.hidden = true;
-    passoOk.querySelector("h3").textContent = pago ? "Payment received." : "Payment not completed.";
-    form.querySelector(".reserva-resumo").textContent = pago
-      ? "Thank you, your card payment went through and your spot is confirmed. See you on the reformer."
-      : `Your spot is still booked, but the card payment was cancelled. You can pay by M-Pesa to ${C.telefone || "the studio"} or at the studio.`;
+    const titulo = passoOk.querySelector("h3");
+    const resumo = form.querySelector(".reserva-resumo");
+    titulo.textContent = "Checking your payment…";
+    resumo.textContent = "";
     form.querySelector(".reserva-nota").textContent = "";
-    history.replaceState(null, "", location.pathname + location.hash);
     dlg.showModal();
+    R.api(`/api/checkout?reference=${encodeURIComponent(ref)}`).then((r) => {
+      const b = r.booking;
+      const aula = `${b.className} on ${R.dataLonga(b.date)} at ${b.time}`;
+      if (r.paid) {
+        titulo.textContent = "Payment received.";
+        resumo.textContent = `Thank you, ${b.name.split(" ")[0]}. Your card payment went through and your spot in ${aula} is confirmed.`;
+      } else {
+        titulo.textContent = "Payment not completed.";
+        resumo.textContent = `Your spot in ${aula} is still booked, but the card payment didn't go through. You can pay by M-Pesa to ${C.telefone || "the studio"} or at the studio.`;
+      }
+      atualizar();
+    }, (e) => {
+      titulo.textContent = "We couldn't check your payment.";
+      resumo.textContent = `${e.message} If money left your account, contact the studio on ${C.telefone || "the phone number below"} and we'll sort it out.`;
+    });
   }
 })();
 

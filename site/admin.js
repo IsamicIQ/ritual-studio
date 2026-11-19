@@ -496,7 +496,7 @@
           <td>${esc(PAG[p.method] || p.method)}</td>
           <td>${esc(p.reference)}</td>
           <td class="num">${KES(p.amount)}</td>
-          <td>${esc(primeiroNome(nomeStaff(p.staffId)))}</td>
+          <td>${p.staffId ? esc(primeiroNome(nomeStaff(p.staffId))) : "Online"}</td>
         </tr>`;
     }).join("") : `<tr><td colspan="7" class="vazio-tabela">No payments recorded yet.</td></tr>`;
   }

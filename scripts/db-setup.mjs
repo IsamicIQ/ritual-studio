@@ -99,16 +99,17 @@ const statements = [
      staff_id text references staff(id) on delete set null,
      date timestamptz not null default now())`,
 
-  /* Payments (added 2026-11-19): class prices, M-Pesa codes from clients, Stripe checkout. */
+  /* Payments (added 2026-11-19): class prices, M-Pesa codes from clients, Paystack card payments. */
   `alter table classes add column if not exists price int not null default 0`,
   `update classes set price = case when type = 'mat' then 2000 else 3000 end where price = 0`,
   `alter table bookings add column if not exists price int not null default 0`,
   `alter table bookings add column if not exists mpesa_code text`,
   `alter table bookings add column if not exists mpesa_code_at timestamptz`,
-  `alter table bookings add column if not exists stripe_session text`,
-  `create unique index if not exists bookings_stripe_session on bookings (stripe_session) where stripe_session is not null`,
-  `alter table payments add column if not exists stripe_session text`,
-  `create unique index if not exists payments_stripe_session on payments (stripe_session) where stripe_session is not null`,
+  `alter table bookings drop column if exists stripe_session`,
+  `alter table payments drop column if exists stripe_session`,
+  `alter table bookings add column if not exists pay_ref text`,
+  `alter table payments add column if not exists pay_ref text`,
+  `create unique index if not exists payments_pay_ref on payments (pay_ref) where pay_ref is not null`,
 ];
 
 for (const s of statements) await sql.query(s);
