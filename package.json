@@ -9,7 +9,6 @@
     "db:setup": "node --env-file=.env.local scripts/db-setup.mjs"
   },
   "dependencies": {
-    "@clerk/backend": "^3.30.0",
     "@neondatabase/serverless": "^1.2.1"
   }
 }

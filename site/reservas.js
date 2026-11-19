@@ -1,6 +1,6 @@
 /* Ritual Studio · data client
    Talks to the studio's API (/api/*), which stores everything in the database.
-   Shared by the public timetable (horario.js) and the staff admin (admin.js). */
+   Used by the public timetable and booking (horario.js). */
 (() => {
   const DIAS = ["", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const DIAS_LONGOS = ["", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];

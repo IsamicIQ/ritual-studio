@@ -1,5 +1,6 @@
 /* After paying by M-Pesa (Send Money to the studio's number), the client sends the
-   confirmation code from their M-Pesa SMS. Staff match it in the admin and mark the booking paid.
+   confirmation code from their M-Pesa SMS. It's saved on the booking (bookings.mpesa_code) so the
+   studio can match it against the M-Pesa messages on the studio phone.
    The booking id is only known to the person who made the booking. */
 import { db } from "./_lib/db.js";
 import { handle, HttpError, json, readJson, str } from "./_lib/http.js";

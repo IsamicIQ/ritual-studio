@@ -26,7 +26,7 @@ window.SITE = {
     { id: "studio", rotulo: "Pay at the studio" },
   ],
 
-  // The timetable lives in the database now: staff edit it on admin.html.
+  // The timetable lives in the database (seeded from scripts/timetable.mjs).
 
   // Studio contact details (shown in "Find us", the footer and booking messages).
   contato: {
@@ -35,8 +35,7 @@ window.SITE = {
     email: "ritualstudio8@gmail.com",
   },
 
-  // Price list (KES), from the studio's price list. `credits` = class credits a payment adds
-  // to the client's account in the admin (leave out for memberships and single services).
+  // Price list (KES), from the studio's price list.
   precos: [
     {
       grupo: "Reformer",

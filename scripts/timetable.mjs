@@ -1,7 +1,7 @@
 /* Ritual Studio's weekly schedule (from the studio's schedule graphics, November 2026).
    day: 1 = Monday … 6 = Saturday. Every class is 50 minutes.
    price = the single-class price in KES (Reformer 3,000, Hot Pilates 2,000), charged for one booking.
-   Staff change the live timetable on admin.html; this file only seeds a new database. */
+   To change the live timetable, edit this file and run scripts/set-timetable.mjs. */
 
 const SIG = "Ritual Signature", INTRO = "Ritual 101", POWER = "Ritual Power", HOT = "Hot Pilates";
 const MON_FRI = [1, 2, 3, 4, 5], MON_SAT = [1, 2, 3, 4, 5, 6];

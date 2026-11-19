@@ -7,7 +7,7 @@ import { TIMETABLE } from "./timetable.mjs";
 const sql = neon(process.env.DATABASE_URL);
 const [{ n }] = await sql`select count(*)::int as n from bookings`;
 if (n > 0) {
-  console.error(`Stopped: there are ${n} bookings. Change the timetable on admin.html instead.`);
+  console.error(`Stopped: there are ${n} bookings. Replacing the timetable now would remove classes people have booked.`);
   process.exit(1);
 }
 const id = () => crypto.randomUUID().replace(/-/g, "").slice(0, 12);
