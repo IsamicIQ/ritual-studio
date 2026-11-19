@@ -39,7 +39,7 @@ export async function startPayment(sql, bookingId, origin) {
       amount: b.price * 100,          // Paystack takes the amount in cents
       currency: "KES",
       reference,
-      callback_url: `${origin}/`,
+      callback_url: `${origin}/book.html`,
       channels: ["card"],
       metadata: { bookingId: b.id, className: b.class_name, date: b.date, time: b.time, name: b.name },
     },

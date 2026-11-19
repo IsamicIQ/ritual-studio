@@ -86,6 +86,20 @@
       requestAnimationFrame(quadro);
     };
 
+    /* Quiet reminder at the side when someone stops scrolling inside the film for a while */
+    const lembrete = cine.querySelector(".cine-lembrete");
+    if (lembrete && !reduzir) {
+      let espera = 0;
+      const mostrar = () => {
+        const r = cine.getBoundingClientRect();
+        const noFilme = r.top <= 1 && r.bottom > innerHeight * 0.9;
+        if (noFilme && progresso() < 0.97 && !document.hidden) lembrete.classList.add("visivel");
+      };
+      const mexeu = () => { lembrete.classList.remove("visivel"); clearTimeout(espera); espera = setTimeout(mostrar, 4000); };
+      for (const ev of ["scroll", "wheel", "touchstart", "keydown"]) addEventListener(ev, mexeu, { passive: true });
+      mexeu();
+    }
+
     addEventListener("resize", ajustar);
     ajustar();
     if (reduzir) atualizarMomentos(0);

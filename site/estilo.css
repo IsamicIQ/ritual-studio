@@ -388,3 +388,23 @@ dialog.reserva::backdrop { background: rgb(38 56 46 / .35); backdrop-filter: blu
   background: rgb(255 255 255 / .6); border: 1px solid rgb(38 56 46 / .22); border-radius: 12px; padding: 11px 14px; }
 .mpesa-codigo input:focus { outline: none; border-color: var(--acento); }
 .mpesa .form-status { margin-top: 8px; }
+
+/* Idle reminder on the opening film: fades in at the side after a few seconds without scrolling */
+.cine-lembrete {
+  position: absolute; z-index: 3; right: clamp(10px, 2.2vw, 32px); top: 50%; transform: translateY(-50%);
+  writing-mode: vertical-rl; display: flex; align-items: center; gap: 14px;
+  font-size: 11px; font-weight: 600; letter-spacing: .34em; text-transform: uppercase; color: var(--texto);
+  padding: 18px 9px; border-radius: 999px; background: rgb(244 230 223 / .62);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  opacity: 0; transition: opacity 1.4s var(--ease); pointer-events: none;
+}
+.cine-lembrete::after { content: ""; width: 1px; height: 46px; background: linear-gradient(var(--texto), transparent); animation: dica 2.4s var(--ease) infinite; }
+.cine-lembrete.visivel { opacity: .9; }
+@media (max-width: 760px) { .cine-lembrete { font-size: 10px; letter-spacing: .28em; right: 8px; } }
+@media (prefers-reduced-motion: reduce) { .cine-lembrete { display: none; } }
+
+/* Booking page */
+.secao--primeira { padding-top: calc(18vh + 40px); }
+.reservar-titulo { font-size: clamp(40px, 5.4vw, 76px); margin-bottom: .35em; }
+.pagina-reservar .classes-lista { margin-top: 20px; }
+.passos a { color: inherit; text-underline-offset: 3px; text-decoration-color: rgb(38 56 46 / .35); }
