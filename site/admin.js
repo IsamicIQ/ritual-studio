@@ -324,7 +324,7 @@
               <label>Min <input type="number" min="10" max="240" step="5" value="${esc(c.duration)}" data-campo="duration" data-foco="${esc(c.id)}-duration"></label>
               <label>Spots <input type="number" min="1" max="100" value="${esc(c.capacity)}" data-campo="capacity" data-foco="${esc(c.id)}-capacity"></label>
               <select data-campo="type" data-foco="${esc(c.id)}-type" aria-label="Type">
-                ${["reformer", "mat", "private"].map((t) => `<option value="${t}" ${c.type === t ? "selected" : ""}>${t[0].toUpperCase() + t.slice(1)}</option>`).join("")}
+                ${[["reformer", "Reformer"], ["mat", "Hot Pilates / mat"], ["private", "Private"]].map(([t, rot]) => `<option value="${t}" ${c.type === t ? "selected" : ""}>${rot}</option>`).join("")}
               </select>
               <select data-campo="instructorId" data-foco="${esc(c.id)}-inst" aria-label="Instructor">${opcoesStaff(c.instructorId)}</select>
               <button type="button" class="mini mini--perigo" data-remover="${esc(c.id)}">Remove</button>
@@ -453,13 +453,21 @@
   $("[data-novo-cliente]").addEventListener("click", () => abrirCliente(null));
 
   /* ── Payments ── */
+  /* Price list from config.js: choosing an item fills in the amount and the class credits it adds. */
   const PACOTES = [
-    { v: "class", rotulo: "A class (drop-in)", kind: "class", creditos: false },
-    ...(S.pacotes || []).filter((p) => !/drop-in/i.test(p.name)).map((p) => ({
-      v: p.name, rotulo: p.name, kind: /private/i.test(p.name) ? "private" : "package", creditos: !/private/i.test(p.name),
-    })),
-    { v: "other", rotulo: "Something else", kind: "other", creditos: false },
+    { v: "class", rotulo: "A class paid on the day (no credits)", kind: "class", creditos: 0, grupo: "" },
+    ...(S.precos || []).flatMap((g) => g.itens.map((p) => ({
+      v: `${g.grupo}: ${p.name}`, grupo: g.grupo, preco: p.price, creditos: p.credits || 0,
+      rotulo: `${p.name}${p.detail ? ` (${p.detail})` : ""} · KES ${KES(p.price)}${p.credits ? ` · ${p.credits} credit${p.credits === 1 ? "" : "s"}` : ""}`,
+      kind: /plunge/i.test(g.grupo) ? "other" : "package",
+    }))),
+    { v: "other", rotulo: "Something else", kind: "other", creditos: 0, grupo: "" },
   ];
+  const precoDaAula = (b) => {
+    const g = (S.precos || []).find((x) => (/hot/i.test(b.className) ? /hot/i : /reformer/i).test(x.grupo));
+    const item = g && g.itens.find((i) => i.credits === 1);
+    return item ? item.price : "";
+  };
   const oQue = (p) => p.bookingId ? (D.bookings.find((b) => b.id === p.bookingId) || {}).className || "Class"
     : p.packageName || (p.kind === "class" ? "Class" : p.kind === "other" ? "Other" : "Package");
   const rotuloCliente = (c) => `${c.name} · ${c.phone || c.email}`;
@@ -493,12 +501,21 @@
   const dlgPag = $("[data-dlg-pagamento]");
   const formPag = $("form", dlgPag);
   let pagContexto = null;
-  $("#dp-tipo").innerHTML = PACOTES.map((p) => `<option value="${esc(p.v)}">${esc(p.rotulo)}</option>`).join("");
+  const opcao = (p) => `<option value="${esc(p.v)}">${esc(p.rotulo)}</option>`;
+  $("#dp-tipo").innerHTML = opcao(PACOTES[0]) +
+    [...new Set(PACOTES.map((p) => p.grupo).filter(Boolean))].map((g) =>
+      `<optgroup label="${esc(g)}">${PACOTES.filter((p) => p.grupo === g).map(opcao).join("")}</optgroup>`).join("") +
+    opcao(PACOTES[PACOTES.length - 1]);
   const mostrarCreditos = () => {
     const p = PACOTES.find((x) => x.v === formPag.elements.pack.value);
     $("[data-dp-creditos-campo]").hidden = !p || !p.creditos;
   };
-  formPag.elements.pack.addEventListener("change", mostrarCreditos);
+  formPag.elements.pack.addEventListener("change", () => {
+    const p = PACOTES.find((x) => x.v === formPag.elements.pack.value);
+    if (p && p.preco) formPag.elements.amount.value = p.preco;
+    formPag.elements.credits.value = p ? p.creditos : 0;
+    mostrarCreditos();
+  });
 
   function abrirPagamento(ctx = {}) {
     pagContexto = ctx;
@@ -512,6 +529,7 @@
     $("[data-dp-tipo-campo]").hidden = !!b;
     $("#dp-clientes").innerHTML = D.clients.map((c) => `<option value="${esc(rotuloCliente(c))}"></option>`).join("");
     if (b && b.payment === "card") formPag.elements.method.value = "card";
+    if (b) formPag.elements.amount.value = precoDaAula(b);
     mostrarCreditos();
     if (b) $("[data-dp-creditos-campo]").hidden = true;
     dlgPag.showModal();
@@ -533,7 +551,7 @@
     const pacote = b ? PACOTES[0] : PACOTES.find((x) => x.v === f.pack.value);
     tentar(acao("payment.record", {
       clientId, bookingId: b ? b.id : null, amount: Number(f.amount.value), method: f.method.value, reference: f.reference.value.trim(),
-      kind: pacote.kind, packageName: pacote.kind === "package" || pacote.kind === "private" ? pacote.v : "",
+      kind: pacote.kind, packageName: pacote.v === "class" || pacote.v === "other" ? "" : pacote.v,
       credits: pacote.creditos ? Number(f.credits.value || 0) : 0,
     }, "Payment saved.").then(() => { dlgPag.close(); if (dlgCliente.open) desenharCliente(); }));
   });

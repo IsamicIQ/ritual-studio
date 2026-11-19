@@ -1,7 +1,8 @@
 /* Creates the database tables (safe to run again) and, if the timetable is empty,
-   fills it with the sample timetable so the site isn't blank.
+   fills it with the studio's schedule from scripts/timetable.mjs.
    Run: npm run db:setup   (reads DATABASE_URL from .env.local) */
 import { neon } from "@neondatabase/serverless";
+import { TIMETABLE } from "./timetable.mjs";
 
 const sql = neon(process.env.DATABASE_URL);
 
@@ -101,23 +102,14 @@ const statements = [
 
 for (const s of statements) await sql.query(s);
 
-// Sample timetable (same as the old preview). Staff replace it from the admin page.
-const sample = [
-  [1, "07:00", "Reformer Foundations", 50, 8], [1, "18:00", "Reformer Flow", 50, 8],
-  [2, "07:00", "Mat Pilates", 45, 12], [2, "17:30", "Reformer Flow", 50, 8],
-  [3, "07:00", "Reformer Foundations", 50, 8], [3, "12:30", "Lunchtime Mat", 40, 12],
-  [4, "07:00", "Reformer Flow", 50, 8], [4, "18:00", "Reformer Foundations", 50, 8],
-  [5, "07:00", "Mat Pilates", 45, 12], [5, "17:30", "Reformer Flow", 50, 8],
-  [6, "09:00", "Saturday Reformer", 50, 8], [6, "10:30", "Mat Pilates", 45, 12],
-];
 const [{ n }] = await sql`select count(*)::int as n from classes`;
 if (n === 0) {
-  for (const [day, time, name, duration, capacity] of sample) {
+  for (const c of TIMETABLE) {
     const id = crypto.randomUUID().replace(/-/g, "").slice(0, 12);
-    const type = /mat/i.test(name) ? "mat" : "reformer";
-    await sql`insert into classes (id, day, time, name, duration, capacity, type) values (${id}, ${day}, ${time}, ${name}, ${duration}, ${capacity}, ${type})`;
+    await sql`insert into classes (id, day, time, name, duration, capacity, level, type)
+      values (${id}, ${c.day}, ${c.time}, ${c.name}, ${c.duration}, ${c.capacity}, ${c.level}, ${c.type})`;
   }
-  console.log(`Added the sample timetable (${sample.length} classes).`);
+  console.log(`Added the studio timetable (${TIMETABLE.length} classes).`);
 }
 
 const counts = await sql`

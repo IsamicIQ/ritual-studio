@@ -6,14 +6,20 @@
 
   const esc = (t) => String(t ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
-  /* ── Packages ── */
-  const listaPacotes = document.querySelector(".pacotes");
-  if (listaPacotes) {
-    listaPacotes.innerHTML = (S.pacotes || []).map((p) => `
-      <li>
-        <div><strong>${esc(p.name)}</strong><span>${esc(p.detail)}</span></div>
-        <em>${p.price ? esc(p.price) : "Pricing coming soon"}</em>
-      </li>`).join("");
+  /* ── Prices ── */
+  const KES = (n) => `KES ${Number(n).toLocaleString("en-KE")}`;
+  const precos = document.querySelector(".precos");
+  if (precos) {
+    precos.innerHTML = (S.precos || []).map((g) => `
+      <div class="precos-grupo">
+        <h3>${esc(g.grupo)}</h3>
+        <ul class="pacotes">${g.itens.map((p) => `
+          <li>
+            <div><strong>${esc(p.name)}</strong>${p.detail ? `<span>${esc(p.detail)}</span>` : ""}</div>
+            <em>${p.price ? KES(p.price) : "Ask the studio"}</em>
+          </li>`).join("")}
+        </ul>
+      </div>`).join("");
   }
 
   /* ── Timetable ── */
@@ -46,10 +52,11 @@
         : `${o.vagas} ${o.vagas === 1 ? "spot" : "spots"} left`;
       const pode = !o.cancelled && !o.passou;
       const com = o.instructor ? ` · with ${o.instructor}` : "";
+      const nivel = a.level && a.level !== "All levels" ? ` · ${a.level}` : "";
       return `
         <li class="aula${pode ? "" : " aula--off"}">
           <time>${esc(a.time)}</time>
-          <div><strong>${esc(a.name)}</strong><span>${esc(a.duration)} min${esc(com)} · ${esc(estado)}</span></div>
+          <div><strong>${esc(a.name)}</strong><span>${esc(a.duration)} min${esc(nivel)}${esc(com)} · ${esc(estado)}</span></div>
           <button type="button" class="botao botao--pequeno${cheia && pode ? " botao--linha" : ""}" data-aula="${esc(a.id)}" ${pode ? "" : "disabled"}>${o.cancelled ? "Cancelled" : cheia && pode ? "Waitlist" : "Book"}</button>
         </li>`;
     }).join("");
@@ -147,6 +154,7 @@
         website: f.website.value,
       });
       const metodo = (S.pagamentos || []).find((p) => p.id === b.payment);
+      const tel = (S.contato || {}).telefone;
       const primeiro = b.name.split(" ")[0];
       const espera = b.status === "waitlist";
       passoOk.querySelector("h3").textContent = espera ? "You're on the waitlist." : "See you on the reformer.";
@@ -155,7 +163,7 @@
         : `${primeiro}, you're booked into ${b.className} on ${R.dataLonga(b.date)} at ${b.time}. Payment: ${metodo ? metodo.rotulo : b.payment}.`;
       form.querySelector(".reserva-nota").textContent = b.payment === "studio"
         ? "You'll pay when you arrive for class."
-        : "Online payment isn't switched on yet, so nothing was charged. The studio will be in touch about paying.";
+        : `Online payment isn't switched on yet, so nothing was charged. The studio will be in touch about paying.${tel ? ` Questions? Call ${tel}.` : ""}`;
       form.reset();
       form.querySelector('input[name="payment"]').checked = true;
       passoForm.hidden = true;
