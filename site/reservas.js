@@ -49,6 +49,7 @@
       return {
         aula: c, date, cancelled: o.cancelled, reason: o.reason, instructor: o.instructor || c.instructor || null,
         vagas: Math.max(0, c.capacity - o.booked), passou: passou(date, c.time),
+        mesmoDia: date <= horario.today, // same-day bookings aren't allowed
       };
     });
   }

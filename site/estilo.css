@@ -408,3 +408,14 @@ dialog.reserva::backdrop { background: rgb(38 56 46 / .35); backdrop-filter: blu
 .reservar-titulo { font-size: clamp(40px, 5.4vw, 76px); margin-bottom: .35em; }
 .pagina-reservar .classes-lista { margin-top: 20px; }
 .passos a { color: inherit; text-underline-offset: 3px; text-decoration-color: rgb(38 56 46 / .35); }
+
+/* Same-day bookings aren't allowed */
+.dia--hoje { opacity: .55; }
+.dia--hoje[aria-selected="true"] { opacity: 1; }
+.aviso-mesmo-dia, .aviso-reserva {
+  padding: 12px 14px; margin: 4px 0 10px; border-radius: 12px; font-size: 14px; line-height: 1.5;
+  color: var(--texto); background: color-mix(in srgb, var(--acento) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--acento) 35%, transparent);
+}
+.aviso-mesmo-dia { list-style: none; }
+.aviso-reserva { margin: 14px 0 0; }

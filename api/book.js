@@ -7,7 +7,10 @@ export const POST = handle(async (request) => {
   const body = await readJson(request);
   if (body.website) return json({ ok: true }); // honeypot: bots fill hidden fields
   const date = String(body.date || "");
-  if (date < studioToday(0) || date > studioToday(DAYS_AHEAD - 1)) {
+  if (date && date <= studioToday(0)) {
+    throw new HttpError(400, "Same-day bookings aren't available. Please book at least one day before your class.");
+  }
+  if (!date || date > studioToday(DAYS_AHEAD)) {
     throw new HttpError(400, "Bookings open up to a week ahead. Please pick a date on the timetable.");
   }
   const contact = validateContact(body);

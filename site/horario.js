@@ -27,11 +27,12 @@
   const aulas = document.querySelector(".aulas");
   if (!dias || !aulas) return;
   let semana = [];
-  let escolhido = 0;
+  let escolhido = 1; // start on tomorrow: same-day bookings aren't allowed
+  const AVISO_MESMO_DIA = "Same-day bookings aren't available. Please book at least one day before your class.";
 
   function desenharDias() {
     dias.innerHTML = semana.map((d, i) => `
-      <button type="button" role="tab" class="dia" aria-selected="${i === escolhido}" data-i="${i}">
+      <button type="button" role="tab" class="dia${i === 0 ? " dia--hoje" : ""}" aria-selected="${i === escolhido}" data-i="${i}">
         <span>${i === 0 ? "Today" : R.DIAS[R.diaSemana(R.deIso(d))]}</span><b>${R.deIso(d).getDate()}</b>
       </button>`).join("");
   }
@@ -39,25 +40,28 @@
   function desenharAulas() {
     const d = semana[escolhido];
     const lista = R.aulasDoDia(d);
+    const hoje = d <= R.horario().today;
+    const aviso = hoje ? `<li class="aviso-mesmo-dia">${esc(AVISO_MESMO_DIA)}</li>` : "";
     if (!lista.length) {
-      aulas.innerHTML = `<li class="vazio">No classes on ${esc(R.DIAS_LONGOS[R.diaSemana(R.deIso(d))])}. Pick another day.</li>`;
+      aulas.innerHTML = aviso || `<li class="vazio">No classes on ${esc(R.DIAS_LONGOS[R.diaSemana(R.deIso(d))])}. Pick another day.</li>`;
       return;
     }
-    aulas.innerHTML = lista.map((o) => {
+    aulas.innerHTML = aviso + lista.map((o) => {
       const a = o.aula;
       const cheia = o.vagas === 0;
       const estado = o.cancelled ? `Cancelled${o.reason ? `: ${o.reason}` : ""}`
         : o.passou ? "Started"
+        : o.mesmoDia ? "Book a day ahead"
         : cheia ? "Full · join the waitlist"
         : `${o.vagas} ${o.vagas === 1 ? "spot" : "spots"} left`;
-      const pode = !o.cancelled && !o.passou;
+      const pode = !o.cancelled && !o.passou && !o.mesmoDia;
       const com = o.instructor ? ` · with ${o.instructor}` : "";
       const nivel = a.level && a.level !== "All levels" ? ` · ${a.level}` : "";
       return `
         <li class="aula${pode ? "" : " aula--off"}">
           <time>${esc(a.time)}</time>
           <div><strong>${esc(a.name)}</strong><span>${esc(a.duration)} min${esc(nivel)}${esc(com)} · ${esc(estado)}</span></div>
-          <button type="button" class="botao botao--pequeno${cheia && pode ? " botao--linha" : ""}" data-aula="${esc(a.id)}" ${pode ? "" : "disabled"}>${o.cancelled ? "Cancelled" : cheia && pode ? "Waitlist" : "Book"}</button>
+          <button type="button" class="botao botao--pequeno${cheia && pode ? " botao--linha" : ""}" data-aula="${esc(a.id)}" ${pode ? "" : "disabled"}>${o.cancelled ? "Cancelled" : o.mesmoDia && !o.passou ? "Unavailable" : cheia && pode ? "Waitlist" : "Book"}</button>
         </li>`;
     }).join("");
   }
@@ -121,7 +125,7 @@
     const b = e.target.closest("[data-aula]");
     if (!b || b.disabled) return;
     const o = R.aulasDoDia(semana[escolhido]).find((x) => x.aula.id === b.dataset.aula);
-    if (!o) return;
+    if (!o || o.mesmoDia) return;
     atual = o;
     reservaFeita = null;
     form.querySelector(".reserva-aula").textContent = o.aula.name;
